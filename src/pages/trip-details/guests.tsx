@@ -15,13 +15,6 @@ interface Participants {
 export function Guests() {
   const [isInviteGuestsModalOpen, setIsInviteGuestsModalOpen] = useState(false);
 
-  function openInviteGuestsModal() {
-    setIsInviteGuestsModalOpen(true);
-  }
-  function closeInviteGuestsModal() {
-    setIsInviteGuestsModalOpen(false);
-  }
-
   const { tripId } = useParams();
   const [participants, setParticipants] = useState<Participants[]>([]);
 
@@ -30,6 +23,19 @@ export function Guests() {
       .get(`/trips/${tripId}/participants`)
       .then((response) => setParticipants(response.data.participants));
   }, [tripId]);
+
+  function openInviteGuestsModal() {
+    setIsInviteGuestsModalOpen(true);
+  }
+  function closeInviteGuestsModal() {
+    setIsInviteGuestsModalOpen(false);
+  }
+
+  async function confirmGuest(participantId: string) {
+    api.patch(`/participants/${participantId}/confirm`).finally(() => {
+      window.document.location.reload();
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -52,7 +58,10 @@ export function Guests() {
               {participant.is_confirmed ? (
                 <CheckCircle2 className="size-5 shrink-0 text-lime-300" />
               ) : (
-                <CircleDashed onClick={() => {}} className="text-zinc-400 size-5 shrink-0" />
+                <CircleDashed
+                  onClick={() => confirmGuest(participant.id)}
+                  className="text-zinc-400 size-5 shrink-0 cursor-pointer"
+                />
               )}
             </div>
           );
