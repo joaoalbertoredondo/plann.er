@@ -1,6 +1,6 @@
 import { Calendar, Tag, X } from "lucide-react";
 import { Button } from "../../components/button";
-import { FormEvent } from "react";
+import { FormEvent, useState } from "react";
 import { api } from "../../lib/axios";
 import { useParams } from "react-router-dom";
 
@@ -12,26 +12,44 @@ export function CreateActivityModal({
   closeCreateActivityModal,
 }: CreateActivityModalProps) {
   const { tripId } = useParams();
+  const [error, setError] = useState<string | null>(null);
+
+  function errorMapping(data: any) {
+    if (data?.errors?.title) {
+      return "O nome da atividade deve conter pelo menos 4 caracteres.";
+    } else if (data?.errors?.occurs_at) {
+      return "Data inválida!";
+    } else if (data.message === "Invalid activity date.") {
+      return "Data fora da atividade!";
+    } else {
+      return "Um erro aconteceu, tente de novo!";
+    }
+  }
 
   async function createActivity(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError(null);
 
     const data = new FormData(event.currentTarget);
 
     const title = data.get("title")?.toString();
     const occurs_at = data.get("occurs_at")?.toString();
 
-    await api.post(`/trips/${tripId}/activities`, {
-      title,
-      occurs_at,
-    });
-
-    window.document.location.reload()
+    try {
+      await api.post(`/trips/${tripId}/activities`, {
+        title,
+        occurs_at,
+      });
+      window.document.location.reload();
+    } catch (err: any) {
+      const finalError = errorMapping(err.response.data);
+      setError(finalError);
+    }
   }
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center">
-      <div className="w-[640px] rounded-xl py-5 px-6 shadow-shape bg-zinc-900 space-y-5">
+      <div className="w-[440px] md:w-[640px] rounded-xl py-5 px-6 shadow-shape bg-zinc-900 space-y-5">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Cadastrar atividade </h2>
@@ -63,6 +81,8 @@ export function CreateActivityModal({
               className="bg-transparent text-lg placeholder:text-zinc-400 outline-none flex-1"
             />
           </div>
+
+          {error && <p className="text-red-400">* {error}</p>}
 
           <Button variant="primary" size="full">
             Salvar atividade
