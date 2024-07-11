@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { api } from "../../lib/axios";
 import { format } from "date-fns";
 
-interface Trip {
+export interface Trip {
   id: string;
   destination: string;
   starts_at: string;
@@ -22,10 +22,10 @@ export function DestinationAndDateHeader() {
   }, [tripId]);
 
   const displayedDate = trip
-      ? format(trip.starts_at, "d' de 'LLL")
-          .concat(" até ")
-          .concat(format(trip.ends_at, "d' de 'LLL"))
-      : null;
+    ? format(trip.starts_at, "d' de 'LLL")
+        .concat(" até ")
+        .concat(format(trip.ends_at, "d' de 'LLL"))
+    : null;
 
   return (
     <div className="px-4 h-16 rounded-xl bg-zinc-900 shadow-shape flex items-center justify-between">

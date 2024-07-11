@@ -3,6 +3,7 @@ import { Button } from "../../components/button";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { api } from "../../lib/axios";
+import { InviteGuestsModal } from "./invite-guests-modal";
 
 interface Participants {
   id: string;
@@ -12,6 +13,15 @@ interface Participants {
 }
 
 export function Guests() {
+  const [isInviteGuestsModalOpen, setIsInviteGuestsModalOpen] = useState(false);
+
+  function openInviteGuestsModal() {
+    setIsInviteGuestsModalOpen(true);
+  }
+  function closeInviteGuestsModal() {
+    setIsInviteGuestsModalOpen(false);
+  }
+
   const { tripId } = useParams();
   const [participants, setParticipants] = useState<Participants[]>([]);
 
@@ -42,17 +52,21 @@ export function Guests() {
               {participant.is_confirmed ? (
                 <CheckCircle2 className="size-5 shrink-0 text-lime-300" />
               ) : (
-                <CircleDashed className="text-zinc-400 size-5 shrink-0" />
+                <CircleDashed onClick={() => {}} className="text-zinc-400 size-5 shrink-0" />
               )}
             </div>
           );
         })}
       </div>
 
-      <Button variant="secondary" size="full">
+      <Button onClick={openInviteGuestsModal} variant="secondary" size="full">
         <UserCog className="size-5" />
         Gerenciar convidados
       </Button>
+
+      {isInviteGuestsModalOpen && (
+        <InviteGuestsModal closeInviteGuestsModal={closeInviteGuestsModal} />
+      )}
     </div>
   );
 }
